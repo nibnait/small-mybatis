@@ -18,7 +18,12 @@ public interface SqlSession {
     <T> T selectOne(String statement, Object parameter);
 
     /**
-     * 得到映射器类型
+     * get映射器类型
      */
     <T> T getMapper(Class<T> type);
+
+    /**
+     * get 配置项
+     */
+    Configuration getConfiguration();
 }

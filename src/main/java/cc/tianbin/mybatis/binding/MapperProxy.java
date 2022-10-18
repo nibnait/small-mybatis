@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Created by nibnait on 2022/05/31
@@ -25,9 +26,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
      */
     private Class<T> mapperInterface;
 
-    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface) {
+    /**
+     * 方法-映射器 缓存
+     */
+    private final Map<Method, MapperMethod> methodCache;
+
+    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethod> methodCache) {
         this.sqlSession = sqlSession;
         this.mapperInterface = mapperInterface;
+        this.methodCache = methodCache;
     }
 
     @Override
@@ -41,7 +48,21 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
         if (Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         } else {
-            return sqlSession.selectOne(method.getName(), args);
+            final MapperMethod mapperMethod = cachedMapperMethod(method);
+            return mapperMethod.execute(sqlSession, args);
         }
+    }
+
+    /**
+     * 去缓存中找 MapperMethod
+     */
+    private MapperMethod cachedMapperMethod(Method method) {
+        MapperMethod mapperMethod = methodCache.get(method);
+        if (mapperMethod == null) {
+            // 找不到才去 new
+            mapperMethod = new MapperMethod(sqlSession.getConfiguration(), mapperInterface, method);
+            methodCache.put(method, mapperMethod);
+        }
+        return mapperMethod;
     }
 }

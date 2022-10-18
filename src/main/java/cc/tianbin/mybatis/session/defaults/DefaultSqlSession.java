@@ -1,6 +1,7 @@
 package cc.tianbin.mybatis.session.defaults;
 
-import cc.tianbin.mybatis.binding.MapperRegistry;
+import cc.tianbin.mybatis.mapping.MappedStatement;
+import cc.tianbin.mybatis.session.Configuration;
 import cc.tianbin.mybatis.session.SqlSession;
 import io.github.nibnait.common.utils.DataUtils;
 
@@ -10,10 +11,10 @@ import io.github.nibnait.common.utils.DataUtils;
  */
 public class DefaultSqlSession implements SqlSession {
 
-    private MapperRegistry mapperRegistry;
+    private Configuration configuration;
 
-    public DefaultSqlSession(MapperRegistry mapperRegistry) {
-        this.mapperRegistry = mapperRegistry;
+    public DefaultSqlSession(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -23,11 +24,21 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T selectOne(String statement, Object parameter) {
-        return (T) DataUtils.format("你被代理了！ statement: {}, param: {}", statement, DataUtils.toJsonStringObject(parameter));
+        MappedStatement mappedStatement = configuration.getMappedStatement(statement);
+        return (T) DataUtils.format("你被代理了！ \n 方法: {}\n 入参: {}\n 待执行SQL: {}",
+                statement,
+                DataUtils.toJsonStringObject(parameter),
+                mappedStatement.getSql()
+        );
     }
 
     @Override
     public <T> T getMapper(Class<T> type) {
-        return mapperRegistry.getMapper(type, this);
+        return configuration.getMapper(type, this);
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        return configuration;
     }
 }

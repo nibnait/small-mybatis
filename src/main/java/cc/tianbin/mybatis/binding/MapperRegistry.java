@@ -1,5 +1,6 @@
 package cc.tianbin.mybatis.binding;
 
+import cc.tianbin.mybatis.session.Configuration;
 import cc.tianbin.mybatis.session.SqlSession;
 import cn.hutool.core.lang.ClassScanner;
 
@@ -12,6 +13,12 @@ import java.util.Set;
  * Created by nibnait on 2022/10/18
  */
 public class MapperRegistry {
+
+    private Configuration config;
+
+    public MapperRegistry(Configuration config) {
+        this.config = config;
+    }
 
     /**
      * 将映射器代理 加到 knownMappers 中
@@ -43,7 +50,7 @@ public class MapperRegistry {
         knownMappers.put(type, new MapperProxyFactory<>(type));
     }
 
-    private <T> boolean hasMapper(Class<T> type) {
+    public <T> boolean hasMapper(Class<T> type) {
         return knownMappers.containsKey(type);
     }
 

@@ -8,4 +8,16 @@
         where id = #{userId, jdbcType=BIGINT}
     </select>
 
+    <select id="queryUserName" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT name
+        FROM user
+        where id = #{userId, jdbcType=BIGINT}
+    </select>
+
+    <select id="queryUserAge" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT age
+        FROM user
+        where id = #{userId, jdbcType=BIGINT}
+    </select>
+
 </mapper>
