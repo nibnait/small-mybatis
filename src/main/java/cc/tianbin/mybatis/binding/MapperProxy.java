@@ -1,38 +1,47 @@
 package cc.tianbin.mybatis.binding;
 
-import lombok.AllArgsConstructor;
+import cc.tianbin.mybatis.session.SqlSession;
+import io.github.nibnait.common.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * Created by nibnait on 2022/05/31
  */
-@AllArgsConstructor
 @Slf4j
-public class MapperProxy<T> implements InvocationHandler {
+public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     /**
      * key: dao 接口名
      * value: sql语句
      */
-    private Map<String, String> sqlSession;
+    private SqlSession sqlSession;
 
     /**
      * 想要代理的 dao 接口
      */
     private Class<T> mapperInterface;
 
+    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface) {
+        this.sqlSession = sqlSession;
+        this.mapperInterface = mapperInterface;
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        log.info("开始查询db。sql:" + sqlSession.get(mapperInterface.getName() + "." + method.getName()).replace("#{userId}", args[0].toString()));
+        if ("toString".equalsIgnoreCase(method.getName())) {
+            return method.invoke(this, args);
+        }
+        log.info("开始查询db。method: {}, args: {}", mapperInterface.getName() + "." + method.getName(),
+                DataUtils.toJsonStringArray(args));
 
-        if ("queryUserName".equalsIgnoreCase(method.getName())) {
-            return "Tom";
+        if (Object.class.equals(method.getDeclaringClass())) {
+            return method.invoke(this, args);
         } else {
-            return 111;
+            return sqlSession.selectOne(method.getName(), args);
         }
     }
 }
