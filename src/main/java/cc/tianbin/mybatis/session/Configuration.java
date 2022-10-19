@@ -1,7 +1,11 @@
 package cc.tianbin.mybatis.session;
 
 import cc.tianbin.mybatis.binding.MapperRegistry;
+import cc.tianbin.mybatis.datasource.druid.DruidDataSourceFactory;
+import cc.tianbin.mybatis.mapping.Environment;
 import cc.tianbin.mybatis.mapping.MappedStatement;
+import cc.tianbin.mybatis.transaction.jdbc.JdbcTransactionFactory;
+import cc.tianbin.mybatis.type.TypeAliasRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,15 +15,24 @@ import java.util.Map;
  */
 public class Configuration {
 
-    /**
-     * 映射注册机
-     */
+    // 环境
+    protected Environment environment;
+
+    // 映射注册机
     protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
-    /**
-     * 映射的语句 存在Map里
-     */
+    // 映射的语句 存在Map里
     protected final Map<String, MappedStatement> mappedStatements = new HashMap<>();
+
+    // 类型别名注册机
+    protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
+    public Configuration() {
+        typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
+        typeAliasRegistry.registerAlias("DRUID", DruidDataSourceFactory.class);
+    }
+
+    //----------------------------- 操作方法 ------------------------//
 
     public void addMappers(String packageName) {
         mapperRegistry.addMappers(packageName);
@@ -45,4 +58,17 @@ public class Configuration {
         return mappedStatements.get(id);
     }
 
+    //----------------------------- getter and setter ------------------------//
+
+    public TypeAliasRegistry getTypeAliasRegistry() {
+        return typeAliasRegistry;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 }

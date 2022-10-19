@@ -30,7 +30,7 @@ public class UserPO {
     /**
      * 性别 0未知 1男 2女
      */
-    private Byte gender;
+    private Integer gender;
 
     /**
      * 地址
@@ -47,7 +47,4 @@ public class UserPO {
      */
     private LocalDateTime mtime;
 
-    public UserPO(Long id) {
-        this.id = id;
-    }
 }

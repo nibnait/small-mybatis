@@ -2,22 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cc.tianbin.mybatis.test.dao.UserDao">
 
-    <select id="queryUserInfo" parameterType="cc.tianbin.mybatis.test.po.UserPO" resultType="cc.tianbin.mybatis.test.po.UserPO">
+    <select id="queryUserInfo" parameterType="java.lang.Long" resultType="cc.tianbin.mybatis.test.po.UserPO">
         SELECT id, name, age, gender, address
         FROM user
-        where id = #{userId, jdbcType=BIGINT}
+        where id = #{userId}
     </select>
 
     <select id="queryUserName" parameterType="java.lang.Long" resultType="java.lang.String">
         SELECT name
         FROM user
-        where id = #{userId, jdbcType=BIGINT}
+        where id = #{userId}
     </select>
 
     <select id="queryUserAge" parameterType="java.lang.Long" resultType="java.lang.Integer">
         SELECT age
         FROM user
-        where id = #{userId, jdbcType=BIGINT}
+        where id = #{userId}
     </select>
 
 </mapper>

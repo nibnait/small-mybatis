@@ -12,7 +12,7 @@ public class UserPOExpect {
         userPO.setId(1L);
         userPO.setName("Tom");
         userPO.setAge(11);
-        userPO.setGender((byte) 1);
+        userPO.setGender(1);
         userPO.setAddress("上海");
         return userPO;
     }

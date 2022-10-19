@@ -4,8 +4,6 @@ import cc.tianbin.mybatis.session.Configuration;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 /**
  * 映射语句
  * Created by nibnait on 2022/10/18
@@ -20,13 +18,7 @@ public class MappedStatement {
 
     private SqlCommandType sqlCommandType;
 
-    private String parameterType;
-
-    private String resultType;
-
-    private String sql;
-
-    private Map<Integer, String> parameter;
+    private BoundSql boundSql;
 
     public static Builder builder() {
         return new MappedStatement.Builder();
@@ -34,7 +26,7 @@ public class MappedStatement {
 
     public static class Builder {
 
-        private MappedStatement mappedStatement = new MappedStatement();
+        private MappedStatement mappedStatement;
 
         public Builder() {
             mappedStatement = new MappedStatement();
@@ -55,23 +47,8 @@ public class MappedStatement {
             return this;
         }
 
-        public Builder parameterType(String parameterType) {
-            mappedStatement.parameterType = parameterType;
-            return this;
-        }
-
-        public Builder resultType(String resultType) {
-            mappedStatement.resultType = resultType;
-            return this;
-        }
-
-        public Builder sql(String sql) {
-            mappedStatement.sql = sql;
-            return this;
-        }
-
-        public Builder parameter(Map<Integer, String> parameter) {
-            mappedStatement.parameter = parameter;
+        public Builder boundSql(BoundSql boundSql) {
+            mappedStatement.boundSql = boundSql;
             return this;
         }
 

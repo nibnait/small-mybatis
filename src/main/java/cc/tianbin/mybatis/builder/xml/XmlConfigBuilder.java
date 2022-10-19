@@ -2,9 +2,13 @@ package cc.tianbin.mybatis.builder.xml;
 
 import cc.tianbin.mybatis.builder.BaseBuilder;
 import cc.tianbin.mybatis.builder.BuilderException;
+import cc.tianbin.mybatis.datasource.DataSourceFactory;
+import cc.tianbin.mybatis.mapping.BoundSql;
+import cc.tianbin.mybatis.mapping.Environment;
 import cc.tianbin.mybatis.mapping.MappedStatement;
 import cc.tianbin.mybatis.mapping.SqlCommandType;
 import cc.tianbin.mybatis.session.Configuration;
+import cc.tianbin.mybatis.transaction.TransactionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.io.Resources;
 import org.dom4j.Document;
@@ -13,11 +17,9 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
+import javax.sql.DataSource;
 import java.io.Reader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +51,9 @@ public class XmlConfigBuilder extends BaseBuilder {
      */
     public Configuration parse() {
         try {
+            // 环境
+            environmentsElement(root.element("environments"));
+            // 解析映射器
             mapperElement(root.element("mappers"));
         } catch (Exception e) {
             throw new BuilderException(e, "Error parsing SQL Mapper Configuration. Cause: ");
@@ -56,6 +61,46 @@ public class XmlConfigBuilder extends BaseBuilder {
         return configuration;
     }
 
+    /**
+     * 解析 environments
+     */
+    private void environmentsElement(Element context) throws Exception {
+        String environment = context.attributeValue("default");
+
+        List<Element> environmentList = context.elements("environment");
+        for (Element e : environmentList) {
+            String id = e.attributeValue("id");
+            if (!environment.equals(id)) {
+                continue;
+            }
+
+            // 事物管理器
+            TransactionFactory txFactory = (TransactionFactory) typeAliasRegistry.resolveAlias(e.element("transactionManager").attributeValue("type")).newInstance();
+
+            // 数据源
+            Element dataSourceElement = e.element("dataSource");
+            DataSourceFactory dataSourceFactory = (DataSourceFactory) typeAliasRegistry.resolveAlias(dataSourceElement.attributeValue("type")).newInstance();
+            List<Element> propertyList = dataSourceElement.elements("property");
+            Properties props = new Properties();
+            for (Element property : propertyList) {
+                props.setProperty(property.attributeValue("name"), property.attributeValue("value"));
+            }
+            dataSourceFactory.setProperties(props);
+            DataSource dataSource = dataSourceFactory.getDataSource();
+
+            // 构建环境
+            configuration.setEnvironment(Environment.builder()
+                    .id(id)
+                    .transactionFactory(txFactory)
+                    .dataSource(dataSource)
+                    .build());
+        }
+
+    }
+
+    /**
+     * 解析 mappers
+     */
     private void mapperElement(Element mappers) throws Exception {
         List<Element> mapperList = mappers.elements("mapper");
         for (Element element : mapperList) {
@@ -99,10 +144,12 @@ public class XmlConfigBuilder extends BaseBuilder {
                     .configuration(configuration)
                     .id(namespace + "." + id)
                     .sqlCommandType(SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH)))
-                    .parameterType(parameterType)
-                    .resultType(resultType)
-                    .sql(sql)
-                    .parameter(parameter)
+                    .boundSql(BoundSql.builder()
+                            .sql(sql)
+                            .resultType(resultType)
+                            .parameterMappings(parameter)
+                            .parameterType(parameterType)
+                            .build())
                     .build();
             configuration.addMappedStatement(mappedStatement);
         }
