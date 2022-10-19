@@ -37,11 +37,11 @@ public class DefaultSqlSession implements SqlSession {
             MappedStatement mappedStatement = configuration.getMappedStatement(statement);
             BoundSql boundSql = mappedStatement.getBoundSql();
 
-            log.info("selectOne \n 方法: {}\n 入参: {}\n 待执行SQL: {}",
-                    statement,
-                    DataUtils.toJsonStringObject(parameter),
-                    boundSql.getSql()
-            );
+//            log.info("selectOne \n 方法: {}\n 入参: {}\n 待执行SQL: {}",
+//                    statement,
+//                    DataUtils.toJsonStringObject(parameter),
+//                    boundSql.getSql()
+//            );
 
             Environment environment = configuration.getEnvironment();
             Connection connection = environment.getDataSource().getConnection();

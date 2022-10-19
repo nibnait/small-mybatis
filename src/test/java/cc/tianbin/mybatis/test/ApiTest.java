@@ -24,7 +24,7 @@ import java.io.Reader;
 public class ApiTest {
 
     @Test
-    public void testMapperProxyFactory() throws IOException {
+    public void test() throws IOException {
         // 从 SqlSessionFactory 中获取 SqlSession
         Reader reader = Resources.getResourceAsReader("mybatis-config-datasource.xml");
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
@@ -34,9 +34,11 @@ public class ApiTest {
         UserDao userDao = sqlSession.getMapper(UserDao.class);
 
         // query
-        UserPO userPO = userDao.queryUserInfo(1L);
-        log.info("testMapperProxyFactory userPO: {}", DataUtils.toJsonStringObject(userPO));
-        Assert.assertTrue(CompareUtils.match(userPO, UserPOExpect.get()));
+        for (int i = 0; i < 50; i++) {
+            UserPO userPO = userDao.queryUserInfo(1L);
+            log.info("查询结果 {} userPO: {}", i, DataUtils.toJsonStringObject(userPO));
+            Assert.assertTrue(CompareUtils.match(userPO, UserPOExpect.get()));
+        }
     }
 
 }

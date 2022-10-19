@@ -2,6 +2,8 @@ package cc.tianbin.mybatis.session;
 
 import cc.tianbin.mybatis.binding.MapperRegistry;
 import cc.tianbin.mybatis.datasource.druid.DruidDataSourceFactory;
+import cc.tianbin.mybatis.datasource.pooled.PooledDataSourceFactory;
+import cc.tianbin.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import cc.tianbin.mybatis.mapping.Environment;
 import cc.tianbin.mybatis.mapping.MappedStatement;
 import cc.tianbin.mybatis.transaction.jdbc.JdbcTransactionFactory;
@@ -29,7 +31,10 @@ public class Configuration {
 
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
+
         typeAliasRegistry.registerAlias("DRUID", DruidDataSourceFactory.class);
+        typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
+        typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
     }
 
     //----------------------------- 操作方法 ------------------------//
