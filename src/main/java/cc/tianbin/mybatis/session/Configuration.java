@@ -4,8 +4,16 @@ import cc.tianbin.mybatis.binding.MapperRegistry;
 import cc.tianbin.mybatis.datasource.druid.DruidDataSourceFactory;
 import cc.tianbin.mybatis.datasource.pooled.PooledDataSourceFactory;
 import cc.tianbin.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
+import cc.tianbin.mybatis.executor.Executor;
+import cc.tianbin.mybatis.executor.SimpleExecutor;
+import cc.tianbin.mybatis.executor.resultset.DefaultResultSetHandler;
+import cc.tianbin.mybatis.executor.resultset.ResultSetHandler;
+import cc.tianbin.mybatis.executor.statement.PreparedStatementHandler;
+import cc.tianbin.mybatis.executor.statement.StatementHandler;
+import cc.tianbin.mybatis.mapping.BoundSql;
 import cc.tianbin.mybatis.mapping.Environment;
 import cc.tianbin.mybatis.mapping.MappedStatement;
+import cc.tianbin.mybatis.transaction.Transaction;
 import cc.tianbin.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import cc.tianbin.mybatis.type.TypeAliasRegistry;
 
@@ -75,5 +83,28 @@ public class Configuration {
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    //----------------------------- SQL 执行器 相关 ----------------------------//
+
+    /**
+     * 创建结果处理器
+     */
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
+    }
+
+    /**
+     * 生成执行器
+     */
+    public Executor newExecutor(Transaction transaction) {
+        return new SimpleExecutor(this, transaction);
+    }
+
+    /**
+     * 创建语句处理器
+     */
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, mappedStatement, parameter, resultHandler, boundSql);
     }
 }

@@ -34,11 +34,9 @@ public class ApiTest {
         UserDao userDao = sqlSession.getMapper(UserDao.class);
 
         // query
-        for (int i = 0; i < 50; i++) {
-            UserPO userPO = userDao.queryUserInfo(1L);
-            log.info("查询结果 {} userPO: {}", i, DataUtils.toJsonStringObject(userPO));
-            Assert.assertTrue(CompareUtils.match(userPO, UserPOExpect.get()));
-        }
+        UserPO userPO = userDao.queryUserInfo(1L);
+        log.info("查询结果 userPO: {}", DataUtils.toJsonStringObject(userPO));
+        Assert.assertTrue(CompareUtils.match(userPO, UserPOExpect.get()));
     }
 
 }
