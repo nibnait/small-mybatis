@@ -33,7 +33,7 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public <T> T selectOne(String statement, Object parameter) {
         MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-        BoundSql boundSql = mappedStatement.getBoundSql();
+        BoundSql boundSql = mappedStatement.getSqlSource().getBoundSql(parameter);
 
 //            log.info("selectOne \n 方法: {}\n 入参: {}\n 待执行SQL: {}",
 //                    statement,

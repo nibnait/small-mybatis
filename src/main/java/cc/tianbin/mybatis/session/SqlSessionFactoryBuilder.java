@@ -1,6 +1,6 @@
 package cc.tianbin.mybatis.session;
 
-import cc.tianbin.mybatis.builder.xml.XmlConfigBuilder;
+import cc.tianbin.mybatis.builder.xml.XMLConfigBuilder;
 import cc.tianbin.mybatis.session.defaults.DefaultSqlSessionFactory;
 
 import java.io.Reader;
@@ -11,7 +11,7 @@ import java.io.Reader;
 public class SqlSessionFactoryBuilder {
 
     public SqlSessionFactory build(Reader reader) {
-        XmlConfigBuilder xmlConfigBuilder = new XmlConfigBuilder(reader);
+        XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader);
         return build(xmlConfigBuilder.parse());
     }
 

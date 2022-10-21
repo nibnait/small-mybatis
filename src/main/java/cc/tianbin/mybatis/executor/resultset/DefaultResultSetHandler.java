@@ -18,29 +18,25 @@ import java.util.List;
 public class DefaultResultSetHandler implements ResultSetHandler {
 
     private final BoundSql boundSql;
+    private final MappedStatement mappedStatement;
 
     public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
         this.boundSql = boundSql;
+        this.mappedStatement = mappedStatement;
     }
 
     @Override
-    public <E> List<E> handleResultSets(Statement statement) throws SQLException {
-        ResultSet resultSet = statement.getResultSet();
-        try {
-            return resultSet2Obj(resultSet, Class.forName(boundSql.getResultType()));
-        } catch (ClassNotFoundException e) {
-            log.error("DefaultResultSetHandler handleResultSets error ", e);
-            return null;
-        }
+    public <E> List<E> handleResultSets(Statement stmt) throws SQLException {
+        ResultSet resultSet = stmt.getResultSet();
+        return resultSet2Obj(resultSet, mappedStatement.getResultType());
     }
-
 
     private <T> List<T> resultSet2Obj(ResultSet resultSet, Class<?> clazz) {
         List<T> list = new ArrayList<>();
         try {
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
-            // 遍历每一行
+            // 每次遍历行值
             while (resultSet.next()) {
                 T obj = (T) clazz.newInstance();
                 for (int i = 1; i <= columnCount; i++) {
@@ -58,7 +54,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                 list.add(obj);
             }
         } catch (Exception e) {
-            log.error("DefaultResultSetHandler resultSet2Obj error ", e);
+            e.printStackTrace();
         }
         return list;
     }

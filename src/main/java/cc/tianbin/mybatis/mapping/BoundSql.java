@@ -1,8 +1,11 @@
 package cc.tianbin.mybatis.mapping;
 
-import lombok.Builder;
+import cc.tianbin.mybatis.reflection.MetaObject;
+import cc.tianbin.mybatis.session.Configuration;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,15 +15,31 @@ import java.util.Map;
  * Created by nibnait on 2022/10/19
  */
 @Getter
-@Builder
 public class BoundSql {
 
     private String sql;
+    private List<ParameterMapping> parameterMappings;
+    private Object parameterObject;
+    private Map<String, Object> additionParameters;
+    private MetaObject metaParameters;
 
-    private Map<Integer, String> parameterMappings;
+    public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {
+        this.sql = sql;
+        this.parameterMappings = parameterMappings;
+        this.parameterObject = parameterObject;
+        this.additionParameters = new HashMap<>();
+        this.metaParameters = configuration.newMetaObject(additionParameters);
+    }
 
-    private String parameterType;
+    public boolean hasAdditionalParameter(String name) {
+        return metaParameters.hasGetter(name);
+    }
 
-    private String resultType;
+    public void setAdditionalParameter(String name, Object value) {
+        metaParameters.setValue(name, value);
+    }
 
+    public Object getAdditionalParameter(String name) {
+        return metaParameters.getValue(name);
+    }
 }
